@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>두근두근 터치! 터치!</title>
+<style>
+:root{--bg:#fdf6f0;--card:#fff;--ink:#3b2f35;--sub:#8a7a82;--acc:#e8728f;--line:#f0dfe3}
+@media (prefers-color-scheme:dark){:root{--bg:#1d1a1f;--card:#2a252c;--ink:#f1e8ec;--sub:#a99aa2;--acc:#ff8fab;--line:#3d353f}}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;display:flex;flex-direction:column;background:var(--bg);color:var(--ink);font:15px/1.6 "Pretendard","Apple SD Gothic Neo","Noto Sans KR",sans-serif}
+header{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:12px 16px;border-bottom:1px solid var(--line);background:var(--card)}
+header h1{font-size:16px;margin:0 auto 0 0}
+main{width:100%;max-width:560px;margin:0 auto;padding:16px;flex:1}
+footer{max-width:560px;margin:0 auto;padding:20px 16px 28px;font-size:12px;line-height:1.7;color:var(--sub);text-align:center}
+footer b{color:var(--ink)}
+button,.btn{font:inherit;font-size:13px;border:1px solid var(--line);background:var(--card);color:var(--ink);padding:7px 13px;border-radius:10px;cursor:pointer}
+button:hover,.btn:hover{border-color:var(--acc)}
+button.on{background:var(--acc);border-color:var(--acc);color:#fff}
+button.del{color:#d33}
+#tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.wrap{text-align:center;background:linear-gradient(var(--card),var(--bg));border:1px solid var(--line);border-radius:20px;padding:16px 8px 0;min-height:200px}
+#stage{position:relative;display:inline-block;line-height:0;vertical-align:bottom;max-width:100%}
+#stage,#stage *{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
+#stage.ed{touch-action:none;cursor:crosshair}
+#im{max-width:100%;max-height:58vh;user-select:none;-webkit-user-drag:none;pointer-events:none}
+#zl{position:absolute;inset:0;pointer-events:none}
+.z{position:absolute;border:2px dashed var(--acc);background:rgba(232,114,143,.12);font-size:11px;line-height:1.3;color:var(--acc);font-weight:700;padding:2px 4px;text-align:left}
+.z b{font-weight:700}
+.h{position:absolute;right:-8px;bottom:-8px;width:16px;height:16px;background:var(--acc);border:2px solid #fff;border-radius:5px;cursor:nwse-resize}
+.z.s{background:rgba(232,114,143,.3);border-style:solid}
+.bounce{animation:b .35s ease}
+@keyframes b{30%{transform:scale(1.05,.95)}60%{transform:scale(.98,1.03) translateY(-8px)}}
+#box{margin-top:16px;background:var(--card);border:2px solid var(--acc);border-radius:16px;padding:14px 16px 16px;min-height:96px;position:relative;cursor:pointer;user-select:none}
+#nm{position:absolute;top:-13px;left:14px;background:var(--acc);color:#fff;font-size:12px;font-weight:700;padding:3px 12px;border-radius:99px}
+#tx{margin-top:6px;white-space:pre-wrap;min-height:48px}
+#nx{position:absolute;right:14px;bottom:8px;color:var(--acc);font-size:12px;opacity:0}
+#nx.on{opacity:1}
+#ed{margin-top:16px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px}
+label.f{display:block;font-size:12px;color:var(--sub);margin:12px 0 4px}
+input[type=text],textarea{width:100%;font:inherit;font-size:13px;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:8px}
+textarea{height:84px;resize:vertical}
+.row{display:flex;gap:6px;align-items:center;margin-top:6px}
+.row input{flex:1}
+.zi{border:1px solid var(--line);border-radius:10px;padding:2px 8px;cursor:pointer}
+.zi.s{border-color:var(--acc)}
+.hint{font-size:12px;color:var(--sub);margin:8px 0 0}
+#toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:8px 16px;border-radius:99px;font-size:13px;opacity:0;transition:.2s;pointer-events:none}
+#toast.on{opacity:1}
+#md,#dl{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;padding:16px;z-index:9}
+.mc{background:var(--card);border-radius:16px;padding:16px;max-width:460px;width:100%}
+.mc p{margin:0 0 12px}
+#jt{height:200px}
+#rx{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;pointer-events:none;display:none}
+.th{height:44px;border-radius:8px;border:1px solid var(--line);background:var(--bg)}
+select{width:100%;font:inherit;font-size:13px;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:8px}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<header>
+  <h1>💓 두근두근 터치! 터치!</h1>
+  <button id="mV" class="on">보기</button>
+  <button id="mE">편집</button>
+  <label class="btn">불러오기<input id="fl" type="file" accept=".json,application/json" hidden></label>
+  <button id="sv">파일로 저장</button>
+  <button id="cp">복사·붙여넣기</button>
+</header>
+
+<main>
+  <div id="tabs"></div>
+  <div class="wrap"><div id="stage"><img id="im" alt="" draggable="false"><img id="rx" alt="" draggable="false"><div id="zl"></div></div></div>
+  <div id="box" hidden><span id="nm"></span><div id="tx"></div><span id="nx">▼</span></div>
+
+  <section id="ed" hidden>
+    <label class="f">캐릭터 이름</label>
+    <input type="text" id="cn">
+    <div class="row">
+      <label class="btn">이미지 교체<input id="ig" type="file" accept="image/*" hidden></label>
+      <button id="cd" class="del">이 캐릭터 삭제</button>
+    </div>
+
+    <label class="f">터치 영역과 대사</label>
+    <p class="hint" style="margin:0 0 8px">① 위 이미지를 드래그해 네모를 그리거나 「＋ 영역 추가」를 눌러요<br>② 영역 이름을 정하고, 아래 칸에 그 영역의 대사를 써요 (한 줄에 하나, 누를 때마다 랜덤)<br>③ 영역 줄의 「🖼 눌렀을 때 바뀔 이미지」로, 그 영역을 눌렀을 때 나올 이미지를 영역마다 따로 정해요<br>④ 선택된 영역은 끌어서 옮기고, 오른쪽 아래 네모를 끌어 크기를 바꿔요</p>
+    <div class="row"><button id="az">＋ 영역 추가</button></div>
+    <div id="zs"></div>
+    <div id="zd">
+      <label class="f" id="zt">선택한 영역의 대사 (한 줄에 하나)</label>
+      <textarea id="zx"></textarea>
+    </div>
+
+    <label class="f">영역 밖·대사 없는 영역을 눌렀을 때 (한 줄에 하나)</label>
+    <textarea id="fb"></textarea>
+    <label class="f">영역 밖(또는 대사가 없는 영역)을 눌렀을 때 바뀔 이미지 (선택)</label>
+    <div class="row"><label class="btn">이미지 선택<input id="fi" type="file" accept="image/*" hidden></label><img id="fp" class="th" alt="" hidden><button id="fc" class="del" hidden>지우기</button></div>
+    <label class="f">바뀐 이미지는 언제 원래대로 돌아올까요?</label>
+    <select id="rv"><option value="3s">3초 뒤에 돌아와요</option><option value="close">대사창을 닫으면 돌아와요</option><option value="stay">다음에 누를 때까지 유지돼요</option></select>
+    <p class="hint">바뀔 이미지는 기본 이미지와 같은 크기·비율로 만들면 위치가 딱 맞아요.</p>
+    <p class="hint">변경은 이 브라우저에 자동 저장돼요. 다른 곳에서 쓰려면 「파일로 저장」을 눌러 보관하세요.</p>
+    <div class="row"><button id="rs" class="del">브라우저 저장 지우기</button></div>
+  </section>
+</main>
+<footer>
+  <b>🔒 올린 이미지와 대사는 서버에 저장되지 않아요.</b><br>
+  이 페이지는 이미지를 어디로도 전송하지 않고, 모든 처리가 이 브라우저 안에서만 이뤄져요.<br>
+  데이터는 이 기기의 브라우저 저장소와, 직접 내려받은 파일에만 남아요.<br>
+  외부 서비스나 분석 도구도 쓰지 않아서 AI 학습 등에 사용될 수 없어요.
+</footer>
+<div id="md" hidden><div class="mc"><p id="mm"></p><div class="row" style="justify-content:flex-end"><button id="mn">취소</button><button id="my" class="on">확인</button></div></div></div>
+<div id="dl" hidden><div class="mc"><p><b>복사·붙여넣기로 저장/불러오기</b><br><span class="hint">다운로드가 막혀 있으면: 「복사」 → 메모장에 붙여넣기 → <code>character.json</code>으로 저장.<br>불러올 때: 저장해 둔 내용을 아래에 붙여넣고 「붙여넣은 내용 불러오기」.</span></p><textarea id="jt"></textarea><div class="row" style="flex-wrap:wrap"><button id="jc">복사</button><button id="ji">붙여넣은 내용 불러오기</button><button id="jx">닫기</button></div></div></div>
+<div id="toast"></div>
+
+<script>
+const $=id=>document.getElementById(id);
+const uid=()=>Math.random().toString(36).slice(2,8);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const KEY='chartalk.v1';
+const svg=(eyes,extra)=>'data:image/svg+xml;utf8,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 260"><rect x="55" y="130" width="90" height="120" rx="40" fill="#ffd9e2"/><circle cx="100" cy="85" r="65" fill="#fff0e6"/><path d="M35 80Q40 15 100 15Q160 15 165 80Q130 55 100 62Q70 55 35 80Z" fill="#7a5a6e"/>'+eyes+extra+'</svg>');
+const PH=svg('<circle cx="76" cy="95" r="7" fill="#3b2f35"/><circle cx="124" cy="95" r="7" fill="#3b2f35"/><path d="M90 118Q100 127 110 118" stroke="#3b2f35" stroke-width="3" fill="none"/>','');
+const PH2=svg('<path d="M68 98Q76 86 84 98M116 98Q124 86 132 98" stroke="#3b2f35" stroke-width="3.5" fill="none" stroke-linecap="round"/><path d="M88 114Q100 134 112 114Z" fill="#e8728f"/>','<ellipse cx="60" cy="108" rx="11" ry="6" fill="#ffb3c4"/><ellipse cx="140" cy="108" rx="11" ry="6" fill="#ffb3c4"/>');
+const sample=()=>({id:uid(),name:'오이',img:PH,
+  zones:[{id:uid(),label:'머리',x:17,y:5,w:66,h:45,lines:['앗, 머리 만지지 마!','쓰담쓰담… 기분 좋아.'],img:PH2},
+         {id:uid(),label:'몸',x:27,y:52,w:46,h:44,lines:['꺄앗! 간지러워!','배고파… 간식 없어?'],img:''}],
+  fallback:['안녕! 와줘서 고마워.','또 눌렀네? 심심했구나.'],fbImg:'',rev:'3s'});
+
+let D=null,cur=0,edit=false,sel=null;
+const clean=d=>{
+  if(!d||!Array.isArray(d.chars)||!d.chars.length)throw 0;
+  return{v:1,chars:d.chars.map(c=>({id:c.id||uid(),name:String(c.name||'이름'),img:String(c.img||PH),
+    zones:(c.zones||[]).map(z=>({id:z.id||uid(),label:String(z.label||'영역'),x:+z.x||0,y:+z.y||0,w:+z.w||1,h:+z.h||1,lines:(z.lines||[]).map(String),img:String(z.img||'')})),
+    fallback:(c.fallback||[]).map(String),fbImg:String(c.fbImg||''),rev:['3s','close','stay'].includes(c.rev)?c.rev:'3s'}))};
+};
+function persist(){try{localStorage.setItem(KEY,JSON.stringify(D))}catch(e){toast('브라우저 저장 공간이 가득 찼어요. 「파일로 저장」으로 보관하세요')}}
+function toast(t){const e=$('toast');e.textContent=t;e.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove('on'),2600)}
+
+async function init(){
+  try{const r=localStorage.getItem(KEY);if(r)D=clean(JSON.parse(r))}catch(e){}
+  if(!D){ // 저장소에 character.json이 같이 올라가 있으면 방문자에게 그걸 보여준다
+    try{const r=await fetch('character.json',{cache:'no-cache'});if(r.ok)D=clean(await r.json())}catch(e){}
+  }
+  if(!D)D={v:1,chars:[sample()]};
+  render();
+}
+
+function render(){
+  unreact();
+  cur=Math.min(cur,D.chars.length-1);
+  const c=D.chars[cur];
+  $('tabs').innerHTML=D.chars.map((x,i)=>`<button data-i="${i}" class="${i===cur?'on':''}">${esc(x.name)}</button>`).join('')+(edit?'<button id="ad">＋ 캐릭터 추가</button>':'');
+  $('im').src=c.img;
+  $('stage').className=edit?'ed':'';
+  $('zl').innerHTML=c.zones.map(z=>`<div class="z ${z.id===sel?'s':''}" style="left:${z.x}%;top:${z.y}%;width:${z.w}%;height:${z.h}%" ${edit?'':'hidden'}><b>${esc(z.label)}</b>${edit&&z.id===sel?'<i class="h"></i>':''}</div>`).join('')+'<div id="dr" class="z" hidden></div>';
+  $('ed').hidden=!edit;
+  $('mV').className=edit?'':'on';$('mE').className=edit?'on':'';
+  if(edit)renderEd();
+}
+function renderEd(){
+  const c=D.chars[cur];
+  $('cn').value=c.name;
+  $('zs').innerHTML=c.zones.map(z=>`<div class="row zi ${z.id===sel?'s':''}" data-z="${z.id}" style="flex-wrap:wrap"><input type="text" value="${esc(z.label)}" data-l="${z.id}"><button class="del" data-d="${z.id}">삭제</button><div class="row" style="flex-basis:100%;margin:0 0 6px"><span class="hint" style="margin:0;white-space:nowrap">대사 ${z.lines.length}줄</span><label class="btn">🖼 눌렀을 때 바뀔 이미지<input type="file" accept="image/*" hidden data-zi="${z.id}"></label>${z.img?`<img class="th" style="height:32px" src="${esc(z.img)}" alt=""><button class="del" data-ci="${z.id}">지우기</button>`:'<span class="hint" style="margin:0">없음</span>'}</div></div>`).join('')||'<p class="hint">아직 영역이 없어요. 이미지 위를 드래그해 보세요.</p>';
+  const z=c.zones.find(z=>z.id===sel);
+  $('zx').disabled=!z;
+  $('zt').textContent=z?`「${z.label}」 영역의 대사 (한 줄에 하나)`:'영역의 대사';
+  $('zx').value=z?z.lines.join('\n'):'';
+  $('zx').placeholder=z?'예) 앗, 머리 만지지 마!\n쓰담쓰담… 기분 좋아.':'위에서 영역을 만들거나 선택하면 여기에 대사를 쓸 수 있어요';
+  $('fb').value=c.fallback.join('\n');
+  $('fp').hidden=$('fc').hidden=!c.fbImg;if(c.fbImg)$('fp').src=c.fbImg;
+  $('rv').value=c.rev||'3s';
+}
+
+/* 이미지 반응 */
+let rt=null;
+function unreact(){clearTimeout(rt);$('rx').style.display='none';$('im').style.visibility=''}
+function react(img,rev){
+  clearTimeout(rt);
+  if(!img){unreact();return}
+  $('rx').src=img;$('rx').style.display='block';$('im').style.visibility='hidden';
+  if((rev||'3s')==='3s')rt=setTimeout(unreact,3000);
+}
+$('rx').onerror=unreact;
+
+/* 대사창 */
+let timer=null,full='';
+function say(name,text){
+  $('box').hidden=false;$('nm').textContent=name;$('nx').classList.remove('on');$('tx').textContent='';
+  clearInterval(timer);full=text;let n=0;
+  timer=setInterval(()=>{$('tx').textContent=full.slice(0,++n);if(n>=full.length){clearInterval(timer);timer=null;$('nx').classList.add('on')}},35);
+}
+$('box').onclick=()=>{
+  if(timer){clearInterval(timer);timer=null;$('tx').textContent=full;$('nx').classList.add('on')}
+  else{$('box').hidden=true;if((D.chars[cur].rev||'3s')!=='stay')unreact()}
+};
+const last={};
+function pick(a,k){if(a.length<2)return a[0];let i;do{i=Math.floor(Math.random()*a.length)}while(i===last[k]);last[k]=i;return a[i]}
+
+/* 터치 / 영역 그리기 */
+const st=$('stage');
+const pt=e=>{const r=st.getBoundingClientRect();return{x:Math.max(0,Math.min(100,(e.clientX-r.left)/r.width*100)),y:Math.max(0,Math.min(100,(e.clientY-r.top)/r.height*100))}};
+const hit=p=>{let best=null;
+  D.chars[cur].zones.slice().reverse().forEach(z=>{
+    if(p.x>=z.x&&p.x<=z.x+z.w&&p.y>=z.y&&p.y<=z.y+z.h&&(!best||z.w*z.h<best.w*best.h))best=z;
+  });return best};
+// 드래그할 때 그림이 끌려가거나 선택 표시가 번지지 않게 브라우저 기본 동작을 막는다
+['dragstart','selectstart','contextmenu','mousedown'].forEach(t=>st.addEventListener(t,e=>e.preventDefault()));
+let dr=null,mv=null;
+const selZ=()=>D.chars[cur].zones.find(z=>z.id===sel);
+function focusLines(){const t=$('zx');if(!t.disabled){t.scrollIntoView({block:'nearest',behavior:'smooth'});t.focus({preventScroll:true})}}
+function place(z){const el=$('zl').children[D.chars[cur].zones.indexOf(z)];if(el)el.style.cssText=`left:${z.x}%;top:${z.y}%;width:${z.w}%;height:${z.h}%`}
+st.addEventListener('pointerdown',e=>{
+  const p=pt(e);
+  if(!edit){
+    const c=D.chars[cur],z=hit(p);
+    st.classList.remove('bounce');void st.offsetWidth;st.classList.add('bounce');
+    const pool=z&&z.lines.length?z.lines:c.fallback;
+    say(c.name,pool.length?pick(pool,z&&z.lines.length?z.id:'_'):'…');
+    react((z&&z.img)||((!z||!z.lines.length)&&c.fbImg)||'',c.rev);
+    return;
+  }
+  st.setPointerCapture(e.pointerId);
+  const z=selZ(),r=st.getBoundingClientRect();
+  if(z){ // 선택된 영역: 모서리 네모 = 크기 조절, 안쪽 = 이동
+    const cx=r.left+(z.x+z.w)/100*r.width,cy=r.top+(z.y+z.h)/100*r.height;
+    if(Math.hypot(e.clientX-cx,e.clientY-cy)<22){mv={m:'r',z};return}
+    if(p.x>=z.x&&p.x<=z.x+z.w&&p.y>=z.y&&p.y<=z.y+z.h){mv={m:'m',z,p,ox:z.x,oy:z.y};return}
+  }
+  dr={x:p.x,y:p.y,x2:p.x,y2:p.y};
+});
+st.addEventListener('pointermove',e=>{
+  const p=pt(e);
+  if(mv){
+    const z=mv.z;
+    if(mv.m==='m'){z.x=Math.max(0,Math.min(100-z.w,mv.ox+p.x-mv.p.x));z.y=Math.max(0,Math.min(100-z.h,mv.oy+p.y-mv.p.y))}
+    else{z.w=Math.max(3,Math.min(100-z.x,p.x-z.x));z.h=Math.max(3,Math.min(100-z.y,p.y-z.y))}
+    place(z);return;
+  }
+  if(!dr)return;
+  dr.x2=p.x;dr.y2=p.y;
+  const b=$('dr');b.hidden=false;
+  b.style.cssText=`left:${Math.min(dr.x,dr.x2)}%;top:${Math.min(dr.y,dr.y2)}%;width:${Math.abs(dr.x2-dr.x)}%;height:${Math.abs(dr.y2-dr.y)}%`;
+});
+st.addEventListener('pointerup',()=>{
+  if(mv){mv=null;persist();return}
+  if(!dr)return;
+  const w=Math.abs(dr.x2-dr.x),h=Math.abs(dr.y2-dr.y),c=D.chars[cur];
+  if(w<3&&h<3){const z=hit(dr);sel=z?z.id:null}
+  else{const z={id:uid(),label:'영역'+(c.zones.length+1),x:Math.min(dr.x,dr.x2),y:Math.min(dr.y,dr.y2),w,h,lines:[],img:''};c.zones.push(z);sel=z.id;persist()}
+  dr=null;render();focusLines();
+});
+st.addEventListener('pointercancel',()=>{mv=null;dr=null;render()});
+$('az').onclick=()=>{
+  const c=D.chars[cur],n=c.zones.length%9,z={id:uid(),label:'영역'+(c.zones.length+1),x:4+(n%3)*32,y:4+Math.floor(n/3)*32,w:28,h:28,lines:[],img:''};
+  c.zones.push(z);sel=z.id;persist();render();focusLines();
+};
+st.addEventListener('animationend',()=>st.classList.remove('bounce'));
+
+/* 편집 UI */
+$('mV').onclick=()=>{edit=false;render()};
+$('mE').onclick=()=>{edit=true;$('box').hidden=true;render()};
+$('tabs').onclick=e=>{
+  if(e.target.id==='ad'){D.chars.push({...sample(),id:uid(),name:'새 캐릭터',zones:[],fallback:[]});cur=D.chars.length-1;sel=null;persist();render();return}
+  const i=e.target.dataset.i;if(i!=null){cur=+i;sel=null;$('box').hidden=true;render()}
+};
+$('cn').oninput=e=>{D.chars[cur].name=e.target.value;persist();$('tabs').querySelector('.on').textContent=e.target.value||'이름'};
+$('zs').onclick=e=>{
+  if(e.target.closest('label'))return;   // 이미지 선택 창이 열리는 동안 목록을 다시 그리면 안 된다
+  const ci=e.target.dataset.ci;
+  if(ci){const z=D.chars[cur].zones.find(z=>z.id===ci);if(z){z.img='';persist();renderEd()}return}
+  const d=e.target.dataset.d,c=D.chars[cur];
+  if(d){c.zones=c.zones.filter(z=>z.id!==d);if(sel===d)sel=null;persist();render();return}
+  const zi=e.target.closest('[data-z]');if(zi&&e.target.tagName!=='INPUT'){sel=zi.dataset.z;render();focusLines()}
+};
+$('zs').oninput=e=>{
+  const id=e.target.dataset.l;if(!id)return;
+  const z=D.chars[cur].zones.find(z=>z.id===id);z.label=e.target.value;persist();
+  const i=D.chars[cur].zones.indexOf(z);$('zl').children[i].firstChild.textContent=z.label;
+  if(sel===id)$('zt').textContent=`「${z.label}」 영역의 대사 (한 줄에 하나)`;
+};
+const lines=v=>v.split('\n').map(s=>s.trim()).filter(Boolean);
+$('zx').oninput=e=>{const z=D.chars[cur].zones.find(z=>z.id===sel);if(z){z.lines=lines(e.target.value);persist()}};
+$('fb').oninput=e=>{D.chars[cur].fallback=lines(e.target.value);persist()};
+$('cd').onclick=async()=>{
+  if(!await ask(`「${D.chars[cur].name}」을(를) 삭제할까요?`))return;
+  D.chars.splice(cur,1);if(!D.chars.length)D.chars.push({...sample(),zones:[],fallback:[]});
+  cur=0;sel=null;persist();render();
+};
+function readImg(f,ok){
+  const rd=new FileReader();
+  rd.onerror=()=>toast('파일을 읽지 못했어요');
+  rd.onload=()=>{
+    const raw=rd.result,i=new Image();
+    i.onload=()=>{
+      // 크기 정보가 없는 SVG 등은 변환하지 않고 그대로 쓴다
+      if(!i.width||!i.height||/svg/.test(f.type)){ok(raw);return}
+      try{ // 너무 큰 그림은 줄여서 저장 (긴 변 900px)
+        const s=Math.min(1,900/Math.max(i.width,i.height)),cv=document.createElement('canvas');
+        cv.width=Math.round(i.width*s);cv.height=Math.round(i.height*s);
+        cv.getContext('2d').drawImage(i,0,0,cv.width,cv.height);
+        let d=cv.toDataURL('image/webp',.9);if(!d.startsWith('data:image/webp'))d=cv.toDataURL('image/png');
+        ok(d.length>100?d:raw);
+      }catch(x){ok(raw)}
+    };
+    i.onerror=()=>toast('이 이미지 형식은 브라우저가 열지 못해요 (HEIC 등) — PNG·JPG·WebP로 바꿔 주세요');
+    i.src=raw;
+  };
+  rd.readAsDataURL(f);
+}
+const pickImg=(e,fn)=>{const f=e.target.files[0];e.target.value='';if(f)readImg(f,fn)};
+$('ig').onchange=e=>pickImg(e,d=>{D.chars[cur].img=d;persist();render()});
+$('zs').onchange=e=>{
+  const id=e.target.dataset.zi;if(!id)return;
+  const z=D.chars[cur].zones.find(z=>z.id===id);
+  if(z)pickImg(e,d=>{z.img=d;persist();renderEd()});else e.target.value='';
+};
+$('fi').onchange=e=>{const c=D.chars[cur];pickImg(e,d=>{c.fbImg=d;persist();renderEd()})};
+$('fc').onclick=()=>{D.chars[cur].fbImg='';persist();renderEd()};
+$('rv').onchange=e=>{D.chars[cur].rev=e.target.value;persist()};
+$('im').onerror=()=>{ // 저장된 그림이 깨졌으면 기본 그림으로 대체
+  if(D.chars[cur].img!==PH){D.chars[cur].img=PH;persist();$('im').src=PH;toast('이미지를 불러오지 못해 기본 그림으로 바꿨어요. 다시 올려 주세요')}
+};
+$('rs').onclick=async()=>{if(await ask('이 브라우저에 저장된 내용을 지울까요? (파일로 저장해 둔 건 그대로예요)')){try{localStorage.removeItem(KEY)}catch(e){}location.reload()}};
+
+/* 파일 저장 / 불러오기 */
+function ask(msg){ // 기본 confirm은 제한된 환경에서 조용히 막히므로 화면 안 팝업을 쓴다
+  return new Promise(res=>{
+    $('mm').textContent=msg;$('md').hidden=false;
+    const done=v=>{$('md').hidden=true;res(v)};
+    $('my').onclick=()=>done(true);$('mn').onclick=()=>done(false);
+  });
+}
+$('sv').onclick=()=>{
+  try{
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(new Blob([JSON.stringify(D)],{type:'application/json'}));
+    a.download='character.json';document.body.appendChild(a);a.click();a.remove();
+    setTimeout(()=>URL.revokeObjectURL(a.href),4000);
+  }catch(e){}
+  toast('다운로드가 막히면 「복사·붙여넣기」 버튼을 써 주세요');
+};
+async function loadText(t,ok){
+  let n;try{n=clean(JSON.parse(t))}catch(x){toast('캐릭터 파일이 아니에요');return}
+  if(!await ask(`캐릭터 ${n.chars.length}명을 불러올까요? 지금 내용은 대체돼요.`))return;
+  D=n;cur=0;sel=null;persist();render();toast('불러왔어요');if(ok)ok();
+}
+$('fl').onchange=e=>{
+  const f=e.target.files[0];e.target.value='';if(!f)return;
+  const r=new FileReader();r.onload=()=>loadText(r.result);r.readAsText(f);
+};
+$('cp').onclick=()=>{$('jt').value=JSON.stringify(D);$('dl').hidden=false};
+$('jx').onclick=()=>{$('dl').hidden=true};
+$('jc').onclick=async()=>{
+  const t=$('jt');
+  try{await navigator.clipboard.writeText(t.value);toast('복사했어요')}
+  catch(e){t.select();try{document.execCommand('copy');toast('복사했어요')}catch(x){toast('칸을 직접 선택해서 복사해 주세요')}}
+};
+$('ji').onclick=()=>loadText($('jt').value,()=>{$('dl').hidden=true});
+init();
+</script>
+</body>
+</html>
