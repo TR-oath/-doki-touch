@@ -19,7 +19,7 @@ button:hover,.btn:hover{border-color:var(--acc)}
 button.on{background:var(--acc);border-color:var(--acc);color:#fff}
 button.del{color:#d33}
 #tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
-.wrap{text-align:center;background:linear-gradient(var(--card),var(--bg));border:1px solid var(--line);border-radius:20px;padding:16px 8px 0;min-height:200px}
+.wrap{position:relative;text-align:center;background:linear-gradient(var(--card),var(--bg));border:1px solid var(--line);border-radius:20px;padding:16px 8px 0;min-height:200px}
 #stage{position:relative;display:inline-block;line-height:0;vertical-align:bottom;max-width:100%}
 #stage,#stage *{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
 #stage.ed{touch-action:none;cursor:crosshair}
@@ -69,6 +69,15 @@ select{width:100%;font:inherit;font-size:13px;background:var(--bg);color:var(--i
 .gb{position:relative;height:12px;border-radius:99px;background:var(--line);overflow:hidden;margin-top:8px}
 #gf{position:absolute;top:0;bottom:0;left:50%;width:0;background:var(--acc);transition:left .35s,width .35s,background .35s}
 .gb i.tk{position:absolute;top:0;bottom:0;width:2px;background:var(--bg);opacity:.9}
+#eb{position:absolute;top:10px;right:12px;width:52px;height:38px;border:0;border-radius:14px;background:var(--acc);cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center;gap:5px;z-index:3;animation:ebp 1.6s ease-in-out infinite}
+#eb::after{content:'';position:absolute;left:10px;bottom:-7px;border:7px solid transparent;border-top-color:var(--acc);border-bottom:0}
+#eb i{width:6px;height:6px;border-radius:50%;background:#fff;display:block}
+@keyframes ebp{50%{transform:translateY(-3px) scale(1.05)}}
+#ch{position:absolute;inset:0;background:rgba(0,0,0,.3);border-radius:20px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:16px;z-index:4}
+#ch button{width:min(100%,360px);padding:14px 16px;font-size:15px;font-weight:700;border:2px solid var(--acc);background:var(--card);color:var(--ink);border-radius:14px;line-height:1.4}
+#ch button:hover{background:var(--acc);color:#fff}
+.evc{border:1px solid var(--line);border-radius:12px;padding:8px 10px 10px;margin-top:8px}
+.zb{padding:0 4px 4px;margin:-2px 0 10px}
 button.rec{background:#e5484d;border-color:#e5484d;color:#fff}
 [hidden]{display:none!important}
 </style>
@@ -87,7 +96,7 @@ button.rec{background:#e5484d;border-color:#e5484d;color:#fff}
 
 <main>
   <div id="tabs"></div>
-  <div class="wrap"><div id="stage"><img id="im" alt="" draggable="false"><img id="rx" alt="" draggable="false"><div id="zl"></div><div id="fx"></div></div></div>
+  <div class="wrap"><div id="stage"><img id="im" alt="" draggable="false"><img id="rx" alt="" draggable="false"><div id="zl"></div><div id="fx"></div></div><button id="eb" hidden aria-label="말풍선"><i></i><i></i><i></i></button><div id="ch" hidden><button id="c0"></button><button id="c1"></button></div></div>
   <div id="gg">
     <div class="gl"><b>호감도</b><span id="gt"></span><span id="gd"></span><span id="gv"></span><button id="gr" title="호감도를 처음 값으로 되돌려요">↺</button></div>
     <div class="gb"><i id="gf"></i><i class="tk" id="k1"></i><i class="tk" id="k2"></i><i class="tk" style="left:50%"></i></div>
@@ -108,22 +117,24 @@ button.rec{background:#e5484d;border-color:#e5484d;color:#fff}
       <div style="flex:1"><span class="hint">낮은 단계 (이하)</span><input type="number" id="a1" min="-20" max="19" step="1"></div>
       <div style="flex:1"><span class="hint">높은 단계 (이상)</span><input type="number" id="a2" min="-19" max="20" step="1"></div>
     </div>
-    <p class="hint">호감도가 「낮은 단계」 이하면 낮을 때 대사, 「높은 단계」 이상이면 높을 때 대사가 나와요. 그 사이는 보통 대사예요. 방문자의 호감도는 각자 브라우저에 저장돼요.</p>
+    <div class="row" style="margin-top:8px">
+      <div style="flex:1"><span class="hint">낮은 단계 이름</span><input type="text" id="n0" maxlength="8"></div>
+      <div style="flex:1"><span class="hint">중간 단계 이름</span><input type="text" id="n1" maxlength="8"></div>
+      <div style="flex:1"><span class="hint">높은 단계 이름</span><input type="text" id="n2" maxlength="8"></div>
+    </div>
+    <p class="hint">호감도가 「낮은 단계」 이하면 낮을 때 대사, 「높은 단계」 이상이면 높을 때 대사가 나와요. 그 사이는 보통 대사예요. 단계 이름은 위 칸에서 바꿀 수 있어요. 방문자의 호감도는 각자 브라우저에 저장돼요.</p>
+
+    <label class="f">호감도 이벤트 (말풍선)</label>
+    <p class="hint" style="margin:0 0 6px">호감도가 정한 값에 도달하면 캐릭터 오른쪽 위에 말풍선이 떠요. 누르면 캐릭터가 말을 하고, 이어서 선택지 2개가 나와요. 어떤 선택지를 고르느냐에 따라 호감도가 올라가거나 내려가요.<br><b>선택지 글은 22자 이내를 권장해요.</b> 더 길어도 입력은 되지만, 녹화 영상에서는 22자 뒤가 잘려요.</p>
+    <div id="evs"></div>
+    <div class="row"><button id="ea">＋ 이벤트 추가</button></div>
 
     <label class="f">터치 영역과 대사</label>
-    <p class="hint" style="margin:0 0 8px">① 위 이미지를 드래그해 네모를 그리거나 「＋ 영역 추가」를 눌러요<br>② 영역 이름을 정하고, 아래 칸에 그 영역의 대사를 써요 (한 줄에 하나, 누를 때마다 랜덤)<br>③ 영역마다 「호감도 올라요 ▲ / 내려가요 ▼ / 변화 없음」을 정해요. 호감도 단계에 따라 대사도 달라져요<br>④ 영역 줄의 「🖼 눌렀을 때 바뀔 이미지」로, 그 영역을 눌렀을 때 나올 이미지를 영역마다 따로 정해요<br>⑤ 선택된 영역은 끌어서 옮기고, 오른쪽 아래 네모를 끌어 크기를 바꿔요</p>
+    <p class="hint" style="margin:0 0 8px">① 위 이미지를 드래그해 네모를 그리거나 「＋ 영역 추가」를 눌러요<br>② 영역 줄을 누르면 그 아래에 대사 입력칸이 열려요 (한 줄에 하나, 누를 때마다 랜덤)<br>③ 영역마다 「호감도 올라요 ▲ / 내려가요 ▼ / 변화 없음」을 정해요. 호감도 단계에 따라 대사도 달라져요<br>④ 영역 줄의 「🖼 눌렀을 때 바뀔 이미지」로, 그 영역을 눌렀을 때 나올 이미지를 영역마다 따로 정해요<br>⑤ 선택된 영역은 끌어서 옮기고, 오른쪽 아래 네모를 끌어 크기를 바꿔요</p>
     <div class="row"><button id="az">＋ 영역 추가</button></div>
     <div id="zs"></div>
-    <div id="zd">
-      <label class="f" id="zt">선택한 영역의 대사 (한 줄에 하나)</label>
-      <textarea id="zx"></textarea>
-      <label class="f" id="zt2"></label>
-      <textarea id="zxl" style="height:64px"></textarea>
-      <label class="f" id="zt3"></label>
-      <textarea id="zxh" style="height:64px"></textarea>
-    </div>
 
-    <label class="f">영역 밖·대사 없는 영역을 눌렀을 때 (한 줄에 하나)</label>
+    <label class="f" id="ft1"></label>
     <textarea id="fb"></textarea>
     <label class="f" id="ft2"></label>
     <textarea id="fbl" style="height:64px"></textarea>
@@ -159,11 +170,14 @@ const AMT={like:2,dislike:3};
 const RC={like:'#e8728f',dislike:'#7aa2e3'};const colOf=m=>RC[m]||'#c9b8c0';   // 파동 색: 올라요=분홍, 내려가요=파랑, 그 외=은은한 회갈색                       // 한 번 누를 때 기본 변화량 (좋아요 +2 / 싫어요 -3)
 const amtOf=z=>z.mood?(z.amt||AMT[z.mood]):0;
 const tierOf=(c,v)=>v<=c.aff.lo?'lo':v>=c.aff.hi?'hi':'mid';
+const DEF_NAMES=['어색함','보통','친함'];
+const tName=(c,t)=>c.aff.names[t==='lo'?0:t==='hi'?2:1];
 const cleanAff=a=>{
   a=a||{};let st=Math.round(+a.start),lo=Math.round(+a.lo),hi=Math.round(+a.hi);
   if(isNaN(st))st=0;if(isNaN(lo))lo=-8;if(isNaN(hi))hi=8;
   lo=clamp(lo,-20,19);hi=clamp(hi,-19,20);if(lo>=hi){lo=-8;hi=8}
-  return{start:clamp(st),lo,hi};
+  const nm=[0,1,2].map(i=>String((a.names&&a.names[i])||DEF_NAMES[i]).trim().slice(0,8)||DEF_NAMES[i]);
+  return{start:clamp(st),lo,hi,names:nm};
 };
 const AK='chartalk.aff.v1';let AFF={};
 try{AFF=JSON.parse(localStorage.getItem(AK))||{}}catch(e){}
@@ -172,20 +186,28 @@ function setAff(c,v){AFF[c.id]=v;try{localStorage.setItem(AK,JSON.stringify(AFF)
 const svg=(eyes,extra)=>'data:image/svg+xml;utf8,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 260"><rect x="55" y="130" width="90" height="120" rx="40" fill="#ffd9e2"/><circle cx="100" cy="85" r="65" fill="#fff0e6"/><path d="M35 80Q40 15 100 15Q160 15 165 80Q130 55 100 62Q70 55 35 80Z" fill="#7a5a6e"/>'+eyes+extra+'</svg>');
 const PH=svg('<circle cx="76" cy="95" r="7" fill="#3b2f35"/><circle cx="124" cy="95" r="7" fill="#3b2f35"/><path d="M90 118Q100 127 110 118" stroke="#3b2f35" stroke-width="3" fill="none"/>','');
 const PH2=svg('<path d="M68 98Q76 86 84 98M116 98Q124 86 132 98" stroke="#3b2f35" stroke-width="3.5" fill="none" stroke-linecap="round"/><path d="M88 114Q100 134 112 114Z" fill="#e8728f"/>','<ellipse cx="60" cy="108" rx="11" ry="6" fill="#ffb3c4"/><ellipse cx="140" cy="108" rx="11" ry="6" fill="#ffb3c4"/>');
-const sample=()=>({id:uid(),name:'오이',img:PH,aff:{start:0,lo:-8,hi:8},
+const sample=()=>({id:uid(),name:'오이',img:PH,aff:{start:0,lo:-8,hi:8,names:['어색함','보통','친함']},
   zones:[{id:uid(),label:'머리',x:17,y:5,w:66,h:45,lines:['앗, 머리 만지지 마!','쓰담쓰담… 기분 좋아.'],linesLo:['함부로 만지지 말라고 했지!','…손 치워.'],linesHi:['더 쓰다듬어 줘도 돼.','네 손은 따뜻해서 좋아.'],img:PH2,mood:'like',amt:0},
          {id:uid(),label:'몸',x:27,y:52,w:46,h:44,lines:['꺄앗! 간지러워!','배고파… 간식 없어?'],linesLo:['한 번만 더 만지면 화낼 거야!','가까이 오지 마!'],linesHi:['…아, 아직은 안 돼!','친해졌다고 막 만져도 되는 건 아니야!'],img:'',mood:'dislike',amt:0}],
-  fallback:['안녕! 와줘서 고마워.','또 눌렀네? 심심했구나.'],fbLo:['…뭐야, 또 왔어?'],fbHi:['오늘도 와줘서 기뻐!'],fbImg:'',rev:'3s'});
+  fallback:['안녕! 와줘서 고마워.','또 눌렀네? 심심했구나.'],fbLo:['…뭐야, 또 왔어?'],fbHi:['오늘도 와줘서 기뻐!'],fbImg:'',rev:'3s',
+  events:[{id:uid(),at:10,lines:['저기… 있잖아.','너, 나랑 있는 거 싫지 않아?'],ch:[{t:'당연히 좋지!',d:3,r:'…그, 그렇구나. 나도 싫지 않아.'},{t:'글쎄, 잘 모르겠는데.',d:-3,r:'…흥, 물어본 내가 바보지.'}]},
+          {id:uid(),at:-10,lines:['…저기, 솔직히 말할게.','요즘 네가 날 대하는 방식, 마음에 안 들어.'],ch:[{t:'미안, 내가 잘못했어.',d:4,r:'…알면 됐어. 다음부터 조심해.'},{t:'내가 뭘 어쨌다고?',d:-4,r:'…그래, 이제 알겠어. 너랑은 말이 안 통하네.'}]}]});
 
 let D=null,cur=0,edit=false,sel=null;
 const lns=a=>(Array.isArray(a)?a:[]).map(String);
+const cleanEv=e=>{
+  e=e||{};let at=Math.round(+e.at);if(isNaN(at)||at===0)at=10;
+  return{id:e.id||uid(),at:clamp(at),lines:lns(e.lines),
+    ch:[0,1].map(i=>{const x=(e.ch&&e.ch[i])||{};return{t:String(x.t||''),d:clamp(Math.round(+x.d)||0),r:String(x.r||'')}})};
+};
 const clean=d=>{
   if(!d||!Array.isArray(d.chars)||!d.chars.length)throw 0;
   return{v:1,chars:d.chars.map(c=>({id:c.id||uid(),name:String(c.name||'이름'),img:String(c.img||PH),aff:cleanAff(c.aff),
     zones:(c.zones||[]).map(z=>({id:z.id||uid(),label:String(z.label||'영역'),x:+z.x||0,y:+z.y||0,w:+z.w||1,h:+z.h||1,
       lines:lns(z.lines),linesLo:lns(z.linesLo),linesHi:lns(z.linesHi),img:String(z.img||''),
       mood:['like','dislike'].includes(z.mood)?z.mood:'',amt:clamp(Math.round(+z.amt)||0,0,20)})),
-    fallback:lns(c.fallback),fbLo:lns(c.fbLo),fbHi:lns(c.fbHi),fbImg:String(c.fbImg||''),rev:['3s','close','stay'].includes(c.rev)?c.rev:'3s'}))};
+    fallback:lns(c.fallback),fbLo:lns(c.fbLo),fbHi:lns(c.fbHi),fbImg:String(c.fbImg||''),rev:['3s','close','stay'].includes(c.rev)?c.rev:'3s',
+    events:(Array.isArray(c.events)?c.events:[]).map(cleanEv)}))};
 };
 function persist(){try{localStorage.setItem(KEY,JSON.stringify(D))}catch(e){toast('브라우저 저장 공간이 가득 찼어요. 「파일로 저장」으로 보관하세요')}}
 function toast(t){const e=$('toast');e.textContent=t;e.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove('on'),2600)}
@@ -209,30 +231,40 @@ function render(){
   $('zl').innerHTML=c.zones.map(z=>`<div class="z ${z.id===sel?'s':''}" style="left:${z.x}%;top:${z.y}%;width:${z.w}%;height:${z.h}%" ${edit?'':'hidden'}><b>${esc(z.label)}</b>${edit&&z.id===sel?'<i class="h"></i>':''}</div>`).join('')+'<div id="dr" class="z" hidden></div>';
   $('ed').hidden=!edit;
   $('mV').className=edit?'':'on';$('mE').className=edit?'on':'';
+  if(ev){ev=null;$('ch').hidden=true}
   gauge();
+  if(!edit)armCheck(c);
+  evBubble();
   if(edit)renderEd();
 }
-function zlabels(c,z){
-  const nm=z?`「${z.label}」 `:'';
-  $('zt').textContent=`${nm}보통일 때 대사 (한 줄에 하나)`;
-  $('zt2').textContent=`${nm}호감도 낮을 때 (${c.aff.lo} 이하)`;
-  $('zt3').textContent=`${nm}호감도 높을 때 (${c.aff.hi} 이상)`;
+function zbox(z,c){   // 선택한 영역 줄 바로 아래에 열리는 대사 입력칸
+  const n=c.aff.names,nm=`「${esc(z.label)}」 `;
+  const ta=(k,v,h,ph)=>`<textarea data-t="${k}" data-zid="${z.id}" style="height:${h}px" placeholder="${ph}">${esc(v.join('\n'))}</textarea>`;
+  return `<div class="zb"><label class="f">${nm}${esc(n[1])} 단계 대사 (한 줄에 하나)</label>${ta('mid',z.lines,84,'예) 앗, 머리 만지지 마!')}`
+    +`<label class="f">${nm}${esc(n[0])} 단계 (호감도 ${c.aff.lo} 이하)</label>${ta('lo',z.linesLo||[],64,'')}`
+    +`<label class="f">${nm}${esc(n[2])} 단계 (호감도 ${c.aff.hi} 이상)</label>${ta('hi',z.linesHi||[],64,'')}</div>`;
+}
+function renderEv(c){
+  $('evs').innerHTML=(c.events||[]).map((e,k)=>`<div class="evc">
+    <div class="row" style="flex-wrap:wrap"><b style="font-size:13px">이벤트 ${k+1}</b><span class="hint" style="margin:0">호감도</span><input type="number" data-ev="${e.id}" data-k="at" value="${e.at}" min="-20" max="20" style="width:72px;flex:none"><span class="hint" style="margin:0">${e.at>0?'이상이 되면':'이하가 되면'} 말풍선이 떠요</span><button class="del" data-edel="${e.id}" style="margin-left:auto">삭제</button></div>
+    <label class="f">캐릭터 대사 (한 줄에 하나)</label><textarea data-ev="${e.id}" data-k="lines" style="height:64px" placeholder="예) 저기… 있잖아.">${esc(e.lines.join('\n'))}</textarea>
+    ${[0,1].map(i=>`<label class="f">선택지 ${i+1} (22자 이내 권장) — 고르면 호감도가 오른쪽 값만큼 변해요 (음수는 하락)</label><div class="row"><input type="text" data-ev="${e.id}" data-k="t${i}" value="${esc(e.ch[i].t)}" placeholder="선택지 글 (22자 이내 권장)"><input type="number" data-ev="${e.id}" data-k="d${i}" value="${e.ch[i].d}" min="-20" max="20" style="width:72px;flex:none"></div><div class="hint" data-w="${e.id}-${i}" style="margin:2px 0 0;color:#d9534f" ${e.ch[i].t.length>22?'':'hidden'}>22자를 넘었어요 (${e.ch[i].t.length}자) — 녹화 영상에서는 뒤가 잘려요</div><div class="row"><input type="text" data-ev="${e.id}" data-k="r${i}" value="${esc(e.ch[i].r)}" placeholder="고른 뒤 캐릭터 대사 (선택)"></div>`).join('')}
+  </div>`).join('')||'<p class="hint">아직 이벤트가 없어요.</p>';
 }
 function renderEd(){
   const c=D.chars[cur];
   $('cn').value=c.name;
-  $('zs').innerHTML=c.zones.map(z=>`<div class="row zi ${z.id===sel?'s':''}" data-z="${z.id}" style="flex-wrap:wrap"><input type="text" value="${esc(z.label)}" data-l="${z.id}"><button class="del" data-d="${z.id}">삭제</button><div class="row" style="flex-basis:100%;margin:0 0 6px;flex-wrap:wrap"><span class="hint" style="margin:0;white-space:nowrap">대사 ${z.lines.length}줄</span><select data-m="${z.id}" style="width:auto;flex:none"><option value="">변화 없음</option><option value="like" ${z.mood==='like'?'selected':''}>▲ 호감도 올라요</option><option value="dislike" ${z.mood==='dislike'?'selected':''}>▼ 호감도 내려가요</option></select>${z.mood?`<input type="number" data-a="${z.id}" value="${amtOf(z)}" min="1" max="20" title="한 번 누를 때 변하는 값" style="width:64px;flex:none">`:''}<label class="btn">🖼 눌렀을 때 바뀔 이미지<input type="file" accept="image/*" hidden data-zi="${z.id}"></label>${z.img?`<img class="th" style="height:32px" src="${esc(z.img)}" alt=""><button class="del" data-ci="${z.id}">지우기</button>`:'<span class="hint" style="margin:0">없음</span>'}</div></div>`).join('')||'<p class="hint">아직 영역이 없어요. 이미지 위를 드래그해 보세요.</p>';
+  const zrow=z=>`<div class="row zi ${z.id===sel?'s':''}" data-z="${z.id}" style="flex-wrap:wrap"><input type="text" value="${esc(z.label)}" data-l="${z.id}"><button class="del" data-d="${z.id}">삭제</button><div class="row" style="flex-basis:100%;margin:0 0 6px;flex-wrap:wrap"><span class="hint" style="margin:0;white-space:nowrap">대사 ${z.lines.length}줄</span><select data-m="${z.id}" style="width:auto;flex:none"><option value="">변화 없음</option><option value="like" ${z.mood==='like'?'selected':''}>▲ 호감도 올라요</option><option value="dislike" ${z.mood==='dislike'?'selected':''}>▼ 호감도 내려가요</option></select>${z.mood?`<input type="number" data-a="${z.id}" value="${amtOf(z)}" min="1" max="20" title="한 번 누를 때 변하는 값" style="width:64px;flex:none">`:''}<label class="btn">🖼 눌렀을 때 바뀔 이미지<input type="file" accept="image/*" hidden data-zi="${z.id}"></label>${z.img?`<img class="th" style="height:32px" src="${esc(z.img)}" alt=""><button class="del" data-ci="${z.id}">지우기</button>`:'<span class="hint" style="margin:0">없음</span>'}</div></div>`;
+  $('zs').innerHTML=c.zones.map(z=>zrow(z)+(z.id===sel?zbox(z,c):'')).join('')||'<p class="hint">아직 영역이 없어요. 이미지 위를 드래그해 보세요.</p>';
   const z=c.zones.find(z=>z.id===sel);
-  ['zx','zxl','zxh'].forEach(k=>$(k).disabled=!z);
-  zlabels(c,z);
-  $('zx').value=z?z.lines.join('\n'):'';
-  $('zxl').value=z?(z.linesLo||[]).join('\n'):'';
-  $('zxh').value=z?(z.linesHi||[]).join('\n'):'';
-  $('zx').placeholder=z?'예) 앗, 머리 만지지 마!\n쓰담쓰담… 기분 좋아.':'위에서 영역을 만들거나 선택하면 여기에 대사를 쓸 수 있어요';
   $('fb').value=c.fallback.join('\n');
   $('fbl').value=(c.fbLo||[]).join('\n');$('fbh').value=(c.fbHi||[]).join('\n');
-  $('ft2').textContent=`영역 밖 — 호감도 낮을 때 (${c.aff.lo} 이하)`;
-  $('ft3').textContent=`영역 밖 — 호감도 높을 때 (${c.aff.hi} 이상)`;
+  const nn=c.aff.names;
+  $('ft1').textContent=`영역 밖·대사 없는 영역을 눌렀을 때 — ${nn[1]} 단계 (한 줄에 하나)`;
+  $('ft2').textContent=`영역 밖 — ${nn[0]} 단계 (호감도 ${c.aff.lo} 이하)`;
+  $('ft3').textContent=`영역 밖 — ${nn[2]} 단계 (호감도 ${c.aff.hi} 이상)`;
+  $('n0').value=nn[0];$('n1').value=nn[1];$('n2').value=nn[2];
+  renderEv(c);
   $('a0').value=c.aff.start;$('a1').value=c.aff.lo;$('a2').value=c.aff.hi;
   $('fp').hidden=$('fc').hidden=!c.fbImg;if(c.fbImg)$('fp').src=c.fbImg;
   $('rv').value=c.rev||'3s';
@@ -282,22 +314,72 @@ function gauge(d){
   const c=D.chars[cur],v=getAff(c),a=c.aff,pct=v/40*100,f=$('gf'),t=tierOf(c,v);
   f.style.left=(v>=0?50:50+pct)+'%';f.style.width=Math.abs(pct)+'%';f.style.background=v>=0?'':'#7aa2e3';
   $('gv').textContent=v>0?'+'+v:String(v);
-  $('gt').textContent=t==='lo'?'서먹함':t==='hi'?'친함':'보통';
+  $('gt').textContent=tName(c,t);
   $('k1').style.left=((a.lo+20)/40*100)+'%';$('k2').style.left=((a.hi+20)/40*100)+'%';
   if(d){const e=$('gd');e.textContent=d>0?'+'+d:String(d);e.style.color=d>0?'var(--acc)':'#7aa2e3';e.classList.remove('on');void e.offsetWidth;e.classList.add('on')}
 }
-$('gr').onclick=()=>{const c=D.chars[cur];delete AFF[c.id];try{localStorage.setItem(AK,JSON.stringify(AFF))}catch(e){}gauge();toast('호감도를 처음 값으로 되돌렸어요')};
+$('gr').onclick=()=>{
+  const c=D.chars[cur];delete AFF[c.id];delete EVS[c.id];
+  try{localStorage.setItem(AK,JSON.stringify(AFF))}catch(e){}saveEv();
+  ev=null;$('ch').hidden=true;$('box').hidden=true;gauge();armCheck(c);evBubble();
+  toast('호감도와 이벤트를 처음 상태로 되돌렸어요');
+};
+
+/* 호감도 이벤트 — 말풍선 → 캐릭터 대사 → 선택지 2개 → 호감도 변화 */
+const EK='chartalk.ev.v1';let EVS={},ev=null;
+try{EVS=JSON.parse(localStorage.getItem(EK))||{}}catch(e){}
+const evSt=(c,e)=>(EVS[c.id]&&EVS[c.id][e.id])||0;           // 0 아직 · 1 말풍선 떠 있음 · 2 끝남
+function saveEv(){try{localStorage.setItem(EK,JSON.stringify(EVS))}catch(x){}}
+function setEv(c,e,v){(EVS[c.id]=EVS[c.id]||{})[e.id]=v;saveEv()}
+function armCheck(c){const v=getAff(c);(c.events||[]).forEach(e=>{if(evSt(c,e)===0&&(e.at>0?v>=e.at:v<=e.at))setEv(c,e,1)})}
+const nextEv=c=>(c.events||[]).filter(e=>evSt(c,e)===1).sort((a,b)=>Math.abs(a.at)-Math.abs(b.at))[0];
+function evBubble(){$('eb').hidden=edit||!!ev||!nextEv(D.chars[cur])}
+$('eb').onclick=()=>{const c=D.chars[cur],e=nextEv(c);if(!e||ev)return;ev={c,e,i:0,phase:'lines'};$('eb').hidden=true;evSay()};
+function evSay(){
+  const L=ev.e.lines,last=ev.i>=L.length-1;
+  say(ev.c.name,L[ev.i]||'…',last?()=>setTimeout(evChoices,350):null);   // 마지막 대사가 끝나면 선택지가 나온다
+}
+function evNext(){                                              // 대사창을 눌렀을 때
+  if(ev.phase==='lines'&&ev.i<ev.e.lines.length-1){ev.i++;evSay();return}
+  if(ev.phase==='reply')evEnd();
+}
+function evChoices(){
+  if(!ev)return;
+  const ch=ev.e.ch;
+  if(!ch.some(x=>x.t)){setEv(ev.c,ev.e,2);evEnd();return}
+  ev.phase='choice';
+  ch.forEach((x,i)=>{const b=$('c'+i);b.textContent=x.t;b.hidden=!x.t});
+  $('ch').hidden=false;
+}
+function evPick(i){
+  if(!ev||ev.phase!=='choice')return;
+  const x=ev.e.ch[i],c=ev.c;$('ch').hidden=true;
+  const before=getAff(c),after=clamp(before+x.d);setAff(c,after);setEv(c,ev.e,2);gauge(after-before);
+  ev.phase='reply';
+  if(x.r)say(c.name,x.r);else evEnd();
+}
+function evEnd(){
+  const c=ev?ev.c:D.chars[cur];ev=null;
+  $('box').hidden=true;$('ch').hidden=true;armCheck(c);evBubble();
+}
+$('c0').onclick=()=>evPick(0);$('c1').onclick=()=>evPick(1);
 
 /* 대사창 */
-let timer=null,full='';
-function say(name,text){
+let timer=null,full='',doneCb=null;
+function finishTyping(){
+  clearInterval(timer);timer=null;$('tx').textContent=full;$('nx').classList.add('on');
+  if(doneCb){const f=doneCb;doneCb=null;f()}
+}
+function say(name,text,done){
   $('box').hidden=false;$('nm').textContent=name;$('nx').classList.remove('on');$('tx').textContent='';
-  clearInterval(timer);full=text;let n=0;
-  timer=setInterval(()=>{$('tx').textContent=full.slice(0,++n);if(n>=full.length){clearInterval(timer);timer=null;$('nx').classList.add('on')}},35);
+  clearInterval(timer);full=text;doneCb=done||null;let n=0;
+  if(!text){finishTyping();return}
+  timer=setInterval(()=>{$('tx').textContent=full.slice(0,++n);if(n>=full.length)finishTyping()},35);
 }
 $('box').onclick=()=>{
-  if(timer){clearInterval(timer);timer=null;$('tx').textContent=full;$('nx').classList.add('on')}
-  else{$('box').hidden=true;if((D.chars[cur].rev||'3s')!=='stay')unreact()}
+  if(timer){finishTyping();return}
+  if(ev){evNext();return}                              // 이벤트 중에는 대사창을 눌러 다음 대사로
+  $('box').hidden=true;if((D.chars[cur].rev||'3s')!=='stay')unreact();
 };
 const last={};
 function pick(a,k){if(a.length<2)return a[0];let i;do{i=Math.floor(Math.random()*a.length)}while(i===last[k]);last[k]=i;return a[i]}
@@ -317,6 +399,7 @@ function place(z){const el=$('zl').children[D.chars[cur].zones.indexOf(z)];if(el
 st.addEventListener('pointerdown',e=>{
   const p=pt(e);
   if(!edit){
+    if(ev)return;                                   // 이벤트 진행 중에는 캐릭터가 반응하지 않는다
     const c=D.chars[cur],z=hit(p);
     st.classList.remove('bounce');void st.offsetWidth;st.classList.add('bounce');
     const d=z&&z.mood?touchAff(c,z):0;               // 호감도를 먼저 바꾸고, 바뀐 단계의 대사를 보여준다
@@ -324,6 +407,7 @@ st.addEventListener('pointerdown',e=>{
     say(c.name,pk.a.length?pick(pk.a,pk.k):'…');
     react((z&&z.img)||((!z||!z.lines.length)&&c.fbImg)||'',c.rev);
     gauge(d);
+    armCheck(c);evBubble();
     ripple(p,z&&z.mood);
     mark(p,z&&z.mood);
     return;
@@ -369,7 +453,7 @@ st.addEventListener('animationend',e=>{if(e.target===st)st.classList.remove('bou
 $('mV').onclick=()=>{edit=false;render()};
 $('mE').onclick=()=>{recStop();edit=true;$('box').hidden=true;render()};
 $('tabs').onclick=e=>{
-  if(e.target.id==='ad'){D.chars.push({...sample(),id:uid(),name:'새 캐릭터',zones:[],fallback:[],fbLo:[],fbHi:[]});cur=D.chars.length-1;sel=null;persist();render();return}
+  if(e.target.id==='ad'){D.chars.push({...sample(),id:uid(),name:'새 캐릭터',zones:[],fallback:[],fbLo:[],fbHi:[],events:[]});cur=D.chars.length-1;sel=null;persist();render();return}
   const i=e.target.dataset.i;if(i!=null){cur=+i;sel=null;$('box').hidden=true;render()}
 };
 $('cn').oninput=e=>{D.chars[cur].name=e.target.value;persist();$('tabs').querySelector('.on').textContent=e.target.value||'이름'};
@@ -379,31 +463,68 @@ $('zs').onclick=e=>{
   if(ci){const z=D.chars[cur].zones.find(z=>z.id===ci);if(z){z.img='';persist();renderEd()}return}
   const d=e.target.dataset.d,c=D.chars[cur];
   if(d){c.zones=c.zones.filter(z=>z.id!==d);if(sel===d)sel=null;persist();render();return}
-  const zi=e.target.closest('[data-z]');if(zi&&e.target.tagName!=='INPUT'){sel=zi.dataset.z;render()}
+  const zi=e.target.closest('[data-z]');if(zi&&e.target.tagName!=='INPUT'){sel=(sel===zi.dataset.z)?null:zi.dataset.z;render()}
 };
 $('zs').oninput=e=>{
+  const tk=e.target.dataset.t;
+  if(tk){
+    const z=D.chars[cur].zones.find(z=>z.id===e.target.dataset.zid);
+    if(z){
+      const v=lines(e.target.value);
+      if(tk==='mid')z.lines=v;else if(tk==='lo')z.linesLo=v;else z.linesHi=v;
+      persist();
+      const sp=$('zs').querySelector('[data-z="'+z.id+'"] span.hint');if(sp)sp.textContent='대사 '+z.lines.length+'줄';
+    }
+    return;
+  }
   const aid=e.target.dataset.a;
   if(aid){const z=D.chars[cur].zones.find(z=>z.id===aid);if(z){z.amt=clamp(Math.round(+e.target.value)||0,0,20);persist()}return}
   const id=e.target.dataset.l;if(!id)return;
   const z=D.chars[cur].zones.find(z=>z.id===id);z.label=e.target.value;persist();
   const i=D.chars[cur].zones.indexOf(z);$('zl').children[i].firstChild.textContent=z.label;
-  if(sel===id)zlabels(D.chars[cur],z);
 };
 const lines=v=>v.split('\n').map(s=>s.trim()).filter(Boolean);
-$('zx').oninput=e=>{const z=D.chars[cur].zones.find(z=>z.id===sel);if(z){z.lines=lines(e.target.value);persist()}};
 $('fb').oninput=e=>{D.chars[cur].fallback=lines(e.target.value);persist()};
-$('zxl').oninput=e=>{const z=selZ();if(z){z.linesLo=lines(e.target.value);persist()}};
-$('zxh').oninput=e=>{const z=selZ();if(z){z.linesHi=lines(e.target.value);persist()}};
 $('fbl').oninput=e=>{D.chars[cur].fbLo=lines(e.target.value);persist()};
 $('fbh').oninput=e=>{D.chars[cur].fbHi=lines(e.target.value);persist()};
 ['a0','a1','a2'].forEach(id=>{$(id).onchange=()=>{
   const c=D.chars[cur],st=Math.round(+$('a0').value),lo=Math.round(+$('a1').value),hi=Math.round(+$('a2').value);
   if(lo>=hi){toast('낮은 단계는 높은 단계보다 작아야 해요');renderEd();return}
-  c.aff=cleanAff({start:st,lo,hi});persist();renderEd();gauge();
+  c.aff=cleanAff({start:st,lo,hi,names:c.aff.names});persist();renderEd();gauge();
 }});
+['n0','n1','n2'].forEach((id,i)=>{$(id).onchange=()=>{
+  const c=D.chars[cur];c.aff.names[i]=$(id).value.trim().slice(0,8)||DEF_NAMES[i];
+  persist();renderEd();gauge();
+}});
+const evById=id=>(D.chars[cur].events||[]).find(e=>e.id===id);
+$('evs').oninput=e=>{
+  const id=e.target.dataset.ev,k=e.target.dataset.k;if(!id||!k)return;
+  const x=evById(id);if(!x)return;const v=e.target.value;
+  if(k==='at'){const n=Math.round(+v);if(n&&n>=-20&&n<=20)x.at=n}
+  else if(k==='lines')x.lines=lines(v);
+  else{
+    const i=+k[1];
+    if(k[0]==='t'){
+      x.ch[i].t=v;
+      const w=$('evs').querySelector('[data-w="'+id+'-'+i+'"]');   // 22자를 넘으면 권장 안내만 보여준다 (입력은 막지 않음)
+      if(w){w.hidden=v.length<=22;w.textContent='22자를 넘었어요 ('+v.length+'자) — 녹화 영상에서는 뒤가 잘려요'}
+    }else if(k[0]==='r')x.ch[i].r=v;else x.ch[i].d=clamp(Math.round(+v)||0);
+  }
+  persist();
+};
+$('evs').onchange=e=>{if(e.target.dataset.k==='at')renderEv(D.chars[cur])};   // 이상/이하 문구와 값 정리
+$('evs').onclick=e=>{
+  const id=e.target.dataset.edel;if(!id)return;
+  const c=D.chars[cur];c.events=c.events.filter(x=>x.id!==id);if(EVS[c.id])delete EVS[c.id][id];saveEv();
+  persist();renderEv(c);evBubble();
+};
+$('ea').onclick=()=>{
+  const c=D.chars[cur];(c.events=c.events||[]).push({id:uid(),at:10,lines:[],ch:[{t:'',d:3,r:''},{t:'',d:-3,r:''}]});
+  persist();renderEv(c);
+};
 $('cd').onclick=async()=>{
   if(!await ask(`「${D.chars[cur].name}」을(를) 삭제할까요?`))return;
-  D.chars.splice(cur,1);if(!D.chars.length)D.chars.push({...sample(),zones:[],fallback:[],fbLo:[],fbHi:[]});
+  D.chars.splice(cur,1);if(!D.chars.length)D.chars.push({...sample(),zones:[],fallback:[],fbLo:[],fbHi:[],events:[]});
   cur=0;sel=null;persist();render();
 };
 function readImg(f,ok){
@@ -534,7 +655,7 @@ function drawFrame(){
   const c=D.chars[cur],v=getAff(c);rec.gv+=(v-rec.gv)*.25;
   const gx=40,gw=W-80,gy=688,by0=gy+24;
   g.textBaseline='middle';g.textAlign='left';g.font='700 26px '+FONT;g.fillStyle='#3b2f35';g.fillText('호감도',gx,gy);
-  const tn=tierOf(c,v)==='lo'?'서먹함':tierOf(c,v)==='hi'?'친함':'보통';
+  const tn=tName(c,tierOf(c,v));
   g.font='700 22px '+FONT;g.fillStyle='#8a7a82';g.fillText(tn,gx+96,gy);
   g.textAlign='right';g.font='700 28px '+FONT;g.fillStyle='#3b2f35';g.fillText(v>0?'+'+v:String(v),gx+gw,gy);
   g.save();rrect(g,gx,by0,gw,18,9);g.fillStyle='#f0dfe3';g.fill();g.clip();
@@ -543,6 +664,22 @@ function drawFrame(){
   g.fillStyle='#fdf6f0';
   [(c.aff.lo+20)/40,(c.aff.hi+20)/40,.5].forEach(t=>g.fillRect(gx+t*gw-1,by0,2,18));
   g.restore();
+  // 이벤트 말풍선 · 선택지
+  if(!$('eb').hidden){
+    const x0=W-120,y1=26;rrect(g,x0,y1,84,58,18);g.fillStyle='#e8728f';g.fill();
+    g.beginPath();g.moveTo(x0+16,y1+56);g.lineTo(x0+34,y1+56);g.lineTo(x0+18,y1+72);g.closePath();g.fill();
+    g.fillStyle='#ffffff';[26,42,58].forEach(dx=>{g.beginPath();g.arc(x0+dx,y1+29,6,0,Math.PI*2);g.fill()});
+  }
+  if(!$('ch').hidden){
+    g.fillStyle='rgba(0,0,0,.3)';g.fillRect(0,0,W,SH);
+    const btns=[$('c0'),$('c1')].filter(b=>!b.hidden&&b.textContent);
+    const bw2=480,bh2=84,gap=22,y0=SH/2-(btns.length*bh2+(btns.length-1)*gap)/2;
+    g.textAlign='center';g.textBaseline='middle';g.font='700 28px '+FONT;
+    btns.forEach((b,i)=>{
+      const y=y0+i*(bh2+gap);rrect(g,(W-bw2)/2,y,bw2,bh2,22);g.fillStyle='#ffffff';g.fill();
+      g.lineWidth=4;g.strokeStyle='#e8728f';g.stroke();g.fillStyle='#3b2f35';g.fillText(b.textContent.slice(0,22),W/2,y+bh2/2);
+    });
+  }
   // 대사창
   if(!$('box').hidden){
     const bx=30,by=790,bw=W-60,bh=H-790-40;
